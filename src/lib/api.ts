@@ -18,6 +18,21 @@ import type {
   SessionVerificationStats,
   VerificationResult,
   ConnectionStatus,
+  // v4.1 Multi-Agent
+  TaskDecomposition,
+  AgentResult,
+  AggregationResult,
+  MultiAgentOptions,
+  AgentType,
+  // v4.2 Self-Improvement
+  Improvement,
+  ImprovementStats,
+  SelfImproveResult,
+  // v4.3 Config
+  RLMConfig,
+  AgentConfig,
+  Skill,
+  ConfigResponse,
 } from './types';
 
 const DEFAULT_BASE_URL = 'http://localhost:5006';
@@ -221,6 +236,165 @@ export class RLMv4Client {
       method: 'POST',
       body: JSON.stringify({ query }),
     });
+  }
+
+  // ===========================================================================
+  // v4.1 Multi-Agent
+  // ===========================================================================
+
+  /** Run multi-agent completion */
+  async multiAgentCompletion(options: MultiAgentOptions): Promise<AggregationResult> {
+    return this.request<AggregationResult>('/tools/rlm_multi_agent', {
+      method: 'POST',
+      body: JSON.stringify(options),
+    });
+  }
+
+  /** Get task decomposition */
+  async getTaskDecomposition(task: string, agents?: AgentType[]): Promise<TaskDecomposition> {
+    return this.request<TaskDecomposition>('/multi-agent/decompose', {
+      method: 'POST',
+      body: JSON.stringify({ task, agents }),
+    });
+  }
+
+  /** Get available agent types */
+  async listAgentTypes(): Promise<{ agents: AgentType[] }> {
+    return this.request('/multi-agent/agents');
+  }
+
+  // ===========================================================================
+  // v4.2 Self-Improvement
+  // ===========================================================================
+
+  /** Run self-improvement completion */
+  async selfImproveCompletion(prompt: string): Promise<SelfImproveResult> {
+    return this.request<SelfImproveResult>('/tools/rlm_self_improve', {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    });
+  }
+
+  /** Get improvement statistics */
+  async getImprovementStats(): Promise<ImprovementStats> {
+    return this.request<ImprovementStats>('/improvements/stats');
+  }
+
+  /** List all improvements */
+  async listImprovements(): Promise<{ improvements: Improvement[] }> {
+    return this.request('/improvements/list');
+  }
+
+  /** Get specific improvement */
+  async getImprovement(improvementId: string): Promise<Improvement> {
+    return this.request<Improvement>(`/improvements/${improvementId}`);
+  }
+
+  /** Delete improvement */
+  async deleteImprovement(improvementId: string): Promise<{ deleted: boolean }> {
+    return this.request(`/improvements/${improvementId}`, { method: 'DELETE' });
+  }
+
+  // ===========================================================================
+  // v4.3 Configuration
+  // ===========================================================================
+
+  /** Get full configuration */
+  async getConfig(): Promise<ConfigResponse> {
+    return this.request<ConfigResponse>('/config');
+  }
+
+  /** Update configuration */
+  async updateConfig(config: Partial<RLMConfig>): Promise<{ updated: boolean; config: RLMConfig }> {
+    return this.request('/config', {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    });
+  }
+
+  /** Reload configuration from files */
+  async reloadConfig(): Promise<{ reloaded: boolean; config: RLMConfig }> {
+    return this.request('/config/reload', { method: 'POST' });
+  }
+
+  /** Export configuration as YAML */
+  async exportConfig(): Promise<{ yaml: string }> {
+    return this.request('/config/export');
+  }
+
+  // ===========================================================================
+  // v4.3 Agents
+  // ===========================================================================
+
+  /** Get all agents */
+  async getAgents(): Promise<{ agents: Record<string, AgentConfig> }> {
+    return this.request('/config/agents');
+  }
+
+  /** Get specific agent */
+  async getAgent(name: string): Promise<AgentConfig> {
+    return this.request<AgentConfig>(`/config/agents/${name}`);
+  }
+
+  /** Update agent configuration */
+  async updateAgent(name: string, config: Partial<AgentConfig>): Promise<{ updated: boolean; agent: AgentConfig }> {
+    return this.request(`/config/agents/${name}`, {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    });
+  }
+
+  /** Get agent skills */
+  async getAgentSkills(name: string): Promise<{ skills: Skill[] }> {
+    return this.request(`/config/agents/${name}/skills`);
+  }
+
+  /** Add skill to agent */
+  async addAgentSkill(name: string, skillId: string): Promise<{ added: boolean }> {
+    return this.request(`/config/agents/${name}/skills`, {
+      method: 'POST',
+      body: JSON.stringify({ skill_id: skillId }),
+    });
+  }
+
+  /** Remove skill from agent */
+  async removeAgentSkill(name: string, skillId: string): Promise<{ removed: boolean }> {
+    return this.request(`/config/agents/${name}/skills/${skillId}`, { method: 'DELETE' });
+  }
+
+  // ===========================================================================
+  // v4.3 Skills
+  // ===========================================================================
+
+  /** Get all skills */
+  async getSkills(): Promise<{ skills: Record<string, Skill> }> {
+    return this.request('/config/skills');
+  }
+
+  /** Get specific skill */
+  async getSkill(skillId: string): Promise<Skill> {
+    return this.request<Skill>(`/config/skills/${skillId}`);
+  }
+
+  /** Create new skill */
+  async createSkill(skill: Partial<Skill> & { id: string }): Promise<{ created: boolean; skill: Skill }> {
+    return this.request('/config/skills', {
+      method: 'POST',
+      body: JSON.stringify(skill),
+    });
+  }
+
+  /** Update skill */
+  async updateSkill(skillId: string, skill: Partial<Skill>): Promise<{ updated: boolean; skill: Skill }> {
+    return this.request(`/config/skills/${skillId}`, {
+      method: 'PUT',
+      body: JSON.stringify(skill),
+    });
+  }
+
+  /** Delete skill */
+  async deleteSkill(skillId: string): Promise<{ deleted: boolean }> {
+    return this.request(`/config/skills/${skillId}`, { method: 'DELETE' });
   }
 }
 

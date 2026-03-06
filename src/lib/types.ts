@@ -284,3 +284,183 @@ export function getConfidenceColor(level: ConfidenceLevel): string {
   }
 }
 
+// ============================================================================
+// RLM v4.1 Types - Multi-Agent Orchestration
+// ============================================================================
+
+/** Agent types */
+export type AgentType = 'math' | 'code' | 'search' | 'reason';
+
+/** Task decomposition result */
+export interface TaskDecomposition {
+  task_id: string;
+  original_task: string;
+  subtasks: AgentSubtask[];
+  agent_assignments: Record<string, AgentType>;
+  priority_order: string[];
+  created_at: string;
+}
+
+/** Subtask for an agent */
+export interface AgentSubtask {
+  id: string;
+  task: string;
+  agent?: AgentType;
+}
+
+/** Result from a single agent */
+export interface AgentResult {
+  agent_name: string;
+  response: string;
+  success: boolean;
+  execution_time: number;
+  tokens_used: number;
+  metadata?: Record<string, unknown>;
+  error?: string;
+}
+
+/** Aggregated result from multi-agent execution */
+export interface AggregationResult {
+  final_response: string;
+  agent_results: Record<string, AgentResult>;
+  total_time: number;
+  verification_passed: boolean;
+  confidence: number;
+  metadata?: Record<string, unknown>;
+}
+
+/** Multi-agent completion options */
+export interface MultiAgentOptions {
+  task: string;
+  agents?: AgentType[];
+  parallel?: boolean;
+}
+
+// ============================================================================
+// RLM v4.2 Types - Self-Improvement Pipeline
+// ============================================================================
+
+/** Improvement types */
+export type ImprovementType = 'prompt_template' | 'tool_code' | 'strategy_change';
+
+/** Learned improvement */
+export interface Improvement {
+  improvement_type: ImprovementType;
+  prompt_template?: string;
+  tool_code?: string;
+  strategy_change?: string;
+  timestamp: string;
+  success_count: number;
+  failure_count: number;
+}
+
+/** Self-improvement completion result */
+export interface SelfImproveResult {
+  response: string;
+  success: boolean;
+  improvements_applied: string[];
+  execution_time: number;
+  metadata?: Record<string, unknown>;
+}
+
+/** Global improvement statistics */
+export interface ImprovementStats {
+  total_improvements: number;
+  successful_applications: number;
+  failed_applications: number;
+  avg_success_rate: number;
+  improvement_types: Record<string, number>;
+}
+
+// ============================================================================
+// RLM v4.3 Types - Configuration System
+// ============================================================================
+
+/** Global configuration structure */
+export interface RLMConfig {
+  model: string;
+  limits: ConfigLimits;
+  verification: VerificationConfig;
+  multi_agent: MultiAgentConfig;
+  self_improvement: SelfImprovementConfig;
+  sessions: SessionConfig;
+  services: ServicesConfig;
+}
+
+/** Configuration limits */
+export interface ConfigLimits {
+  max_depth: number;
+  max_iterations: number;
+  max_budget: number;
+  max_timeout: number;
+  max_errors: number;
+}
+
+/** Verification configuration */
+export interface VerificationConfig {
+  enabled: boolean;
+  threshold: number;
+  store_failures: boolean;
+  always_verify_patterns: string[];
+}
+
+/** Multi-agent configuration */
+export interface MultiAgentConfig {
+  enabled: boolean;
+  parallel_execution: boolean;
+  max_agents_per_task: number;
+  aggregation_strategy: 'synthesis' | 'voting' | 'best';
+}
+
+/** Self-improvement configuration */
+export interface SelfImprovementConfig {
+  enabled: boolean;
+  store_improvements: boolean;
+  max_retry_with_improvement: number;
+  graphiti_sync: boolean;
+}
+
+/** Session configuration */
+export interface SessionConfig {
+  timeout: number;
+  max_sessions: number;
+  compaction_enabled: boolean;
+  compaction_threshold: number;
+}
+
+/** Services configuration */
+export interface ServicesConfig {
+  graphiti_url: string;
+  memclawz_url: string;
+}
+
+/** Agent configuration from .md files */
+export interface AgentConfig {
+  name: string;
+  focus: string;
+  priority: number;
+  max_iterations: number;
+  max_depth: number;
+  tools: string[];
+  skills: string[];
+  system_prompt: string;
+  source_file?: string;
+}
+
+/** Skill definition from .md files */
+export interface Skill {
+  id: string;
+  description: string;
+  category: string;
+  prompt_template: string;
+  behavior?: string;
+  trigger_patterns?: string[];
+}
+
+/** Config API response */
+export interface ConfigResponse {
+  config: RLMConfig;
+  agents: Record<string, AgentConfig>;
+  skills: Record<string, Skill>;
+}
+

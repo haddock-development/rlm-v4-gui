@@ -12,6 +12,10 @@ import { ThemeToggle } from './ThemeToggle';
 import { SessionManager } from './SessionManager';
 import { LiveCompletionPanel } from './LiveCompletionPanel';
 import { StatsDashboard } from './StatsDashboard';
+import { ConfigDashboard } from './ConfigDashboard';
+import { AgentsOverview } from './AgentsOverview';
+import { SkillsLibrary } from './SkillsLibrary';
+import { ImprovementDashboard } from './ImprovementDashboard';
 import { parseLogFile, extractContextVariable } from '@/lib/parse-logs';
 import { rlmClient } from '@/lib/api';
 import { RLMLogFile, RLMSession, ConnectionStatus } from '@/lib/types';
@@ -26,7 +30,7 @@ interface DemoLogInfo {
 
 export function Dashboard() {
   // Tab state
-  const [activeTab, setActiveTab] = useState<'logs' | 'sessions' | 'stats'>('logs');
+  const [activeTab, setActiveTab] = useState<'logs' | 'sessions' | 'stats' | 'config' | 'agents' | 'skills' | 'improvements'>('logs');
 
   // Log file state
   const [logFiles, setLogFiles] = useState<RLMLogFile[]>([]);
@@ -160,7 +164,7 @@ export function Dashboard() {
 
         {/* Main Content with Tabs */}
         <main className="max-w-7xl mx-auto px-6 py-8">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'logs' | 'sessions' | 'stats')}>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'logs' | 'sessions' | 'stats' | 'config' | 'agents' | 'skills' | 'improvements')}>
             <TabsList className="mb-6">
               <TabsTrigger value="logs" className="gap-2">
                 <span>📁</span> Log Files
@@ -170,6 +174,18 @@ export function Dashboard() {
               </TabsTrigger>
               <TabsTrigger value="stats" className="gap-2">
                 <span>📊</span> Stats
+              </TabsTrigger>
+              <TabsTrigger value="config" className="gap-2">
+                <span>⚙️</span> Config
+              </TabsTrigger>
+              <TabsTrigger value="agents" className="gap-2">
+                <span>🤖</span> Agents
+              </TabsTrigger>
+              <TabsTrigger value="skills" className="gap-2">
+                <span>🎯</span> Skills
+              </TabsTrigger>
+              <TabsTrigger value="improvements" className="gap-2">
+                <span>📈</span> Improvements
               </TabsTrigger>
             </TabsList>
 
@@ -342,6 +358,26 @@ export function Dashboard() {
             {/* Tab: Stats */}
             <TabsContent value="stats">
               <StatsDashboard />
+            </TabsContent>
+
+            {/* Tab: Config */}
+            <TabsContent value="config">
+              <ConfigDashboard />
+            </TabsContent>
+
+            {/* Tab: Agents */}
+            <TabsContent value="agents">
+              <AgentsOverview />
+            </TabsContent>
+
+            {/* Tab: Skills */}
+            <TabsContent value="skills">
+              <SkillsLibrary />
+            </TabsContent>
+
+            {/* Tab: Improvements */}
+            <TabsContent value="improvements">
+              <ImprovementDashboard />
             </TabsContent>
           </Tabs>
         </main>
