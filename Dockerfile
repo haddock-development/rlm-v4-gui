@@ -18,8 +18,11 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build argument for API URL (will be set at build time)
-ARG NEXT_PUBLIC_RLM_V4_URL=http://localhost:5006
-ENV NEXT_PUBLIC_RLM_V4_URL=$NEXT_PUBLIC_RLM_V4_URL
+ARG NEXT_PUBLIC_RLM_V4_URL
+ENV NEXT_PUBLIC_RLM_V4_URL=${NEXT_PUBLIC_RLM_V4_URL}
+
+# Debug: print the URL being used
+RUN echo "Building with NEXT_PUBLIC_RLM_V4_URL=${NEXT_PUBLIC_RLM_V4_URL}"
 
 RUN npm run build
 
