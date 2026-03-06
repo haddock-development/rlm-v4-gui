@@ -174,9 +174,8 @@ function ConfigItem({
 }
 
 /** Failure card */
-function FailureCard({ failure, index }: { failure: VerificationStats['recent_failures'] extends (infer T)[] ? T : never; index: number }) {
-  const f = failure as { type: string; prompt: string; attempts?: string[]; timestamp: string };
-  const truncatedPrompt = f.prompt.length > 100 ? f.prompt.slice(0, 100) + '...' : f.prompt;
+function FailureCard({ failure, index }: { failure: { type: string; prompt: string; attempts?: string[]; timestamp: string }; index: number }) {
+  const truncatedPrompt = failure.prompt.length > 100 ? failure.prompt.slice(0, 100) + '...' : failure.prompt;
 
   return (
     <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
@@ -185,15 +184,15 @@ function FailureCard({ failure, index }: { failure: VerificationStats['recent_fa
           Failure #{index + 1}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          {new Date(f.timestamp).toLocaleString()}
+          {new Date(failure.timestamp).toLocaleString()}
         </span>
       </div>
       <p className="text-xs font-mono text-muted-foreground truncate">
         {truncatedPrompt}
       </p>
-      {f.attempts && f.attempts.length > 0 && (
+      {failure.attempts && failure.attempts.length > 0 && (
         <div className="mt-2 text-[10px] text-muted-foreground">
-          {f.attempts.length} attempts
+          {failure.attempts.length} attempts
         </div>
       )}
     </div>
